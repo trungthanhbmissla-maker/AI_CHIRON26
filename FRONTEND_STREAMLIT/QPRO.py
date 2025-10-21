@@ -39,7 +39,7 @@ grade = col2.selectbox("Chọn khối lớp", grades, index=9)
 if st.button("🚀 Tạo đề trắc nghiệm", type="primary"):
     with st.spinner("🧠 AI đang soạn đề..."):
         try:
-            api_url = "http://127.0.0.1:5000/api/generate-quiz"
+            api_url = "https://ai-quiz-pro-e0dh.onrender.com/api/generate-quiz"
             payload = {"subject": subject, "grade": str(grade)}
             response = requests.post(api_url, json=payload)
 
