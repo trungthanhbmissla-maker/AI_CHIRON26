@@ -137,8 +137,17 @@ st.markdown(
 # ================================
 # 💬 SIDEBAR - THÔNG TIN & HƯỚNG DẪN
 # ================================
+
 with st.sidebar:
-    st.image("assets/logo.png", width=80)
+    logo_path = Path(__file__).parent / "assets" / "logo.png"
+    if not logo_path.exists():
+        logo_path = Path("FRONTEND_STREAMLIT/assets/logo.png")
+
+    if logo_path.exists():
+        st.image(str(logo_path), width=80)
+    else:
+        st.warning("⚠️ Không tìm thấy logo.png, vui lòng đặt vào thư mục 'assets/'.")
+
     st.markdown("## 🧭 Hướng dẫn sử dụng")
     st.markdown("""
     1. Chọn **môn học**, **lớp học** và **chủ đề**.  
