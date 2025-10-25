@@ -1,0 +1,138 @@
+{
+  "Toán": {
+    "6": ["Chương I. Số tự nhiên", "Chương II. Số nguyên", "Chương III. Hình học trực quan", 
+    "Chương IV. Một số yếu tố thống kê và xác suất", "Chương V. Phân số và số thập phân", "Chương VI. Hình học phẳng"],
+    "7": ["Chương I. Số hữu tỉ", "Chương II. Số thực", "Chương III. Hình học trực quan", "Chương IV. Góc. Đường thẳng song song",
+    "Chương V. Một số yếu tố thống kê và xác suất", "Chương VI. Biểu thức đại số", "Chương VII. Tam giác"],
+    "8": ["Chương I. Đa thức nhiều biến", "Chương II. Phân thức đại số", "Chương III. Hàm và đồ thị", "Chương IV. Hình học trực quan",
+    "Chương V. Định lý Pithagore. Tứ giác", "Chương VI. Một số yếu tố thống kê và xác suất", "Chương VII. Phương trình bậc nhất một ẩn"
+    , "Chương VIII. Tam giác đồng dạng. Hình đồng dạng"],
+     "9": ["Chương I. Phương trình và hệ phương trình bậc nhất", "Chương II. Bất đẳng thức. Bất phương trình bậc nhất một ẩn", 
+     "Chương III. Căn thức", "Chương IV. Hệ thức lượng trong tam giác vuông",  "Chương V. Đường tròn",
+     "Chương VI. Một số yếu tố thống kê và xác suất", "Chương VII. Hàm số y = ax^2 (a khác 0). Phương trình bậc hai một ẩn",
+     "Chương VIII. Đường tròn ngoại tiếp và đường tròn nội tiếp", "Chương IX. Đa giác đều",  "Chương X. Hình học trực quan"],
+    "10": ["Chương I. Mệnh đề toán học và tập hợp",  "Chương II. Bất phương trình và hệ bất phương trình bậc nhất hai ẩn",
+    "Chương III. Hàm số và đồ thị", "Chương IV. Hệ thức lượng trong tam giác. Vectơ", "Chương V. Đại số tổ hợp",
+    "Chương VI. Một số yếu tố thống kê và xác suất", "Chương VII. Phương pháp tọa độ trong mặt phẳng" ],
+    "11": ["Chương I. Hàm số lượng giác và phương trình lượng giác",  "Chương II. Dãy số. Cấp số cộng và cấp số nhân",
+    "Chương III. Giới hạn. Hàm số liên tục", "Chương IV. Đường thẳng và mặt phẳng trong không gian. Quan hệ song song",
+    "Chương V. Một số yếu tố thống kê và xác suất", "Chương VI. Hàm số mũ và hàm số Logarit", "Chương VII. Đạo hàm",
+     "Chương VIII. Quan hệ vuông góc trong không gian. Phép chiếu vuông góc"],
+    "12": ["Chương I. Ứng dụng đạo hàm để khảo sát và vẽ đồ thị của hàm số",  "Chương II. Tọa độ của Vectơ trong không gian",
+    "Chương III. Các số đặc trưng đo mức độ phân tán cho mẫu số liệu ghép nhóm", "Chương IV. Nguyên hàm. Tích phân",
+    "Chương V. Phương trình mặt phẳng, đường thẳng, mặt cầu trong không gian", "Chương VI. Một số yếu tố xác suất"]
+  },
+  "Tin học": {
+    "6": [
+      "Chủ đề A. Máy tính và cộng đồng",
+      "Chủ đề B. Mạng máy tính và Internet",
+      "Chủ đề C. Tổ chức lưu trữ, tìm kiếm và trao đổi thông tin",
+      "Chủ đề D. Đạo đức, pháp luật và văn hóa trong môi trường số",
+      "Chủ đề E. Ứng dụng tin học: Soạn thảo văn bản và trình chiếu",
+      "Chủ đề F. Giải quyết vấn đề với sự trợ giúp của máy tính: Thuật toán và lập trình Scratch"
+    ],
+    "7": [
+      "Chủ đề A. Máy tính và cộng đồng",
+      "Chủ đề C. Tổ chức lưu trữ, tìm kiếm và trao đổi thông tin",
+      "Chủ đề D. Đạo đức, pháp luật và văn hóa trong môi trường số",
+      "Chủ đề E. Ứng dụng tin học: Sử dụng phần mềm bảng tính",
+      "Chủ đề F. Giải quyết vấn đề với sự trợ giúp của máy tính: Lập trình trực quan Scratch nâng cao",
+      "Chủ đề G. Hướng nghiệp với Tin học"
+    ],
+    "8": [
+      "Chủ đề A. Máy tính và cộng đồng",
+      "Chủ đề C. Tổ chức lưu trữ, tìm kiếm và trao đổi thông tin",
+      "Chủ đề D. Đạo đức, pháp luật và văn hóa trong môi trường số",
+      "Chủ đề E. ng dụng tin học: Xử lý và trực quan hóa dữ liệu bằng Bảng tính điện tử, soạn thảo và trình chiếu nâng cao, làm quen với phần mềm chỉnh sửa ảnh GIMP",
+      "Chủ đề F. Giải quyết vấn đề với sự trợ giúp của máy tính: Lập trình Python cơ bản",
+      "Chủ đề G. Hướng nghiệp với Tin học"
+    ],
+    "9": [
+      "Chủ đề A. Máy tính và cộng đồng: Internet vạn vật (IoT)",
+      "Chủ đề C. Tổ chức lưu trữ, tìm kiếm và trao đổi thông tin: Kỹ năng tìm kiếm và đánh giá thông tin",
+      "Chủ đề D. Đạo đức, pháp luật và văn hóa trong môi trường số",
+      "Chủ đề E. Ứng dụng tin học: Sử dụng phần mềm mô phỏng và khám phá tri thức, Sử dụng bảng tính điện tử nâng cao, làm quen với phần mềm Video Editor",
+      "Chủ đề F. Giải quyết vấn đề với sự trợ giúp của máy tính: Giải bài toán bằng máy tính",
+      "Chủ đề G. Hướng nghiệp với Tin học: Tin học và định hướng nghề nghiệp"
+    ],
+    "10": [
+      "Chủ đề A. Máy tính và xã hội tri thức: Tin học và xử lý thông tin",
+      "Chủ đề B. Mạng máy tính và Internet: Internet hôm nay và ngày mai",
+      "Chủ đề D. Đạo đức, pháp luật và văn hóa trong môi trường số: Nghĩa vụ tuân thủ pháp lí trong môi trường số",
+      "Chủ đề F. Giải quyết vấn đề với sự trợ giúp của máy tính: Lập trình Python cơ bản",
+      "Chủ đề G. Hướng nghiệp với tin học: Giới thiệu nhóm nghề thiết kế và lập trình",
+      "Chủ đề A - CS. Máy tính và xã hội tri thức: CS - Biểu diễn thông tin",
+      "Chủ đề E - ICT. Ứng dụng tin học: ICT - Phần mềm thiết kế đồ họa GIMP"
+    ],
+    "11": [
+      "Chủ đề A. Máy tính và xã hội tri thức: Thế giới thiết bị số, hệ điều hành và phần mềm ứng dụng",
+      "Chủ đề C. Tổ chức lưu trữ, tìm kiếm và trao đổi thông tin: Tìm kiếm và trao đổi thông tin trên mạng",
+      "Chủ đề D. Đạo đức, pháp luật và văn hóa trong môi trường số: Ứng xử văn hóa trong môi trường số",
+      "Chủ đề F. Giải quyết vấn đề với sự trợ giúp của máy tính: Giới thiệu các hệ cơ sở dữ liệu",
+      "Chủ đề G. Hướng nghiệp với tin học: Giới thiệu nghề quản trị cơ sở dữ liệu",
+      "Chủ đề E - ICT. Ứng dụng Tin học: Phần mềm chỉnh sửa ảnh và làm video ANIMIZ",
+      "Chủ đề F - ICT. Giải quyết vấn đề với sự trợ giúp của máy tính: Thực hành tạo và khai thác cơ sở dữ liệu"
+    ],
+    "12": [
+      "Chủ đề A. Máy tính và xã hội tri thức: Giới thiệu Trí tuệ nhân tạo",
+      "Chủ đề B. Mạng máy tính và Internet: Kết nối mạng",
+      "Chủ đề D. Đạo đức, pháp luật và văn hóa trong môi trường số: Gìn giữ tính nhân văn trong thế giới ảo",
+      "Chủ đề F. Giải quyết vấn đề với sự trợ giúp của máy tính: Tạo trang web bằng HTML và CSS",
+      "Chủ đề G. Hướng nghiệp với Tin học",
+      "Chủ đề A - ICT. Máy tính và xã hội tri thức: Thực hành kết nối thiết bị số",
+      "Chủ đề E - ICT. Ứng dụng Tin học: Phần mềm sử dụng phần mềm tạo trang web MOBIRISE"
+    ]
+  },
+  "Vật lý": {
+    "6": ["Đo độ dài và khối lượng", "Lực và chuyển động", "Âm thanh", "Ánh sáng"],
+    "7": ["Áp suất", "Nhiệt học", "Điện học cơ bản", "Dòng điện và tác dụng"],
+    "8": ["Chuyển động cơ học", "Lực đẩy Ác-si-mét", "Nhiệt năng", "Điện từ học"],
+    "9": ["Điện xoay chiều", "Từ trường", "Cảm ứng điện từ", "Quang học"],
+    "10": ["Động học chất điểm", "Động lực học Newton", "Công và năng lượng", "Cân bằng và chuyển động quay"],
+    "11": ["Dao động và sóng cơ", "Điện xoay chiều", "Từ trường", "Cảm ứng điện từ"],
+    "12": ["Sóng ánh sáng", "Hạt ánh sáng", "Hạt nhân nguyên tử", "Ứng dụng vật lý hiện đại"]
+  },
+  "Hóa học": {
+    "8": ["Nguyên tử và phân tử", "Phản ứng hóa học", "Mol và tỉ khối", "Dung dịch"],
+    "9": ["Kim loại và phi kim", "Axit - Bazơ - Muối", "Phản ứng oxi hóa - khử", "Hóa học và đời sống"],
+    "10": ["Cấu tạo nguyên tử", "Liên kết hóa học", "Phản ứng oxi hóa - khử", "Nhiệt hóa học"],
+    "11": ["Cacbohidrat", "Ancol và Phenol", "Axit cacboxylic", "Este và Lipit"],
+    "12": ["Este và chất béo", "Cacbohidrat", "Amin - Protein", "Polime và vật liệu polime"]
+  },
+  "Sinh học": {
+    "6": ["Giới thiệu thế giới sinh vật", "Tế bào - đơn vị cơ bản của sự sống", "Đa dạng sinh học", "Sinh vật và môi trường"],
+    "7": ["Cấu tạo cơ thể người", "Hệ tuần hoàn - hô hấp", "Tiêu hóa và bài tiết", "Thần kinh và giác quan"],
+    "8": ["Sinh sản và di truyền", "Biến dị và tiến hóa", "Môi trường và sinh thái"],
+    "9": ["Di truyền học cơ bản", "Công nghệ sinh học", "Sinh học và đời sống"],
+    "10": ["Sinh học tế bào", "Chuyển hóa vật chất và năng lượng", "Sinh học phân tử"],
+    "11": ["Sinh lý học thực vật", "Sinh lý học động vật", "Cảm ứng và vận động"],
+    "12": ["Di truyền học nâng cao", "Tiến hóa", "Sinh thái học"]
+  },
+  "Ngữ văn": {
+    "6": ["Truyện dân gian", "Thơ ca dân gian", "Tập làm văn tự sự", "Từ và câu"],
+    "7": ["Truyện hiện đại", "Thơ trữ tình", "Tập làm văn biểu cảm", "Từ loại và câu ghép"],
+    "8": ["Truyện ngắn và kí", "Thơ hiện đại Việt Nam", "Tập làm văn nghị luận", "Phong cách ngôn ngữ"],
+    "9": ["Truyện ngắn hiện đại", "Thơ ca cách mạng", "Tập làm văn nghị luận xã hội", "Tổng kết từ vựng và ngữ pháp"],
+    "10": ["Văn học trung đại Việt Nam", "Văn học hiện đại Việt Nam", "Kĩ năng nghị luận xã hội"],
+    "11": ["Thơ mới 1930–1945", "Văn xuôi hiện đại", "Nghị luận văn học"],
+    "12": ["Văn học Việt Nam hiện đại", "Tác phẩm trọng tâm", "Kĩ năng làm bài thi THPT Quốc gia"]
+  },
+  "Lịch sử": {
+    "6": ["Thời nguyên thủy", "Cổ đại phương Đông và phương Tây", "Việt Nam thời dựng nước"],
+    "7": ["Thời phong kiến Việt Nam", "Các triều đại Việt Nam", "Thế giới trung đại"],
+    "8": ["Cách mạng tư sản", "Phong trào công nhân", "Việt Nam thế kỷ XIX"],
+    "9": ["Cách mạng tháng Tám", "Kháng chiến chống Pháp", "Kháng chiến chống Mỹ"],
+    "10": ["Lịch sử thế giới cận đại", "Cách mạng công nghiệp", "Chủ nghĩa tư bản"],
+    "11": ["Chiến tranh thế giới thứ nhất và hai", "Phong trào cách mạng Việt Nam"],
+    "12": ["Việt Nam sau 1975", "Thế giới hiện đại", "Quan hệ quốc tế"]
+  },
+  "Địa lý": {
+    "6": ["Bản đồ và kĩ năng địa lý", "Trái Đất và các chuyển động", "Khí hậu và thời tiết", "Thủy quyển và sinh quyển"],
+    "7": ["Dân cư và xã hội", "Kinh tế nông nghiệp", "Kinh tế công nghiệp", "Dịch vụ và thương mại"],
+    "8": ["Tự nhiên Việt Nam", "Dân cư Việt Nam", "Kinh tế Việt Nam"],
+    "9": ["Địa lý các vùng kinh tế", "Địa lý dân cư", "Địa lý tự nhiên nâng cao"],
+    "10": ["Địa lý tự nhiên đại cương", "Địa lý kinh tế - xã hội thế giới"],
+    "11": ["Địa lý các châu lục", "Địa lý Việt Nam chi tiết"],
+    "12": ["Địa lý các vùng kinh tế Việt Nam", "Địa lý phát triển bền vững"]
+  }
+}
