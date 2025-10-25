@@ -21,7 +21,6 @@ st.set_page_config(
 # ================================
 st.markdown("""
 <style>
-/* === Căn giữa logo trong sidebar === */
 [data-testid="stSidebar"] img {
   display: block !important;
   margin-left: auto !important;
@@ -30,16 +29,12 @@ st.markdown("""
   margin-bottom: 14px !important;
   border-radius: 10px !important;
   box-shadow: 0 6px 14px rgba(0,0,0,0.18) !important;
-  width: 96px !important; /* bạn có thể chỉnh kích thước nếu muốn */
+  width: 96px !important;
 }
-
-/* Giữ lại màu nền mặc định, không dùng background ảnh */
 html, body, [data-testid="stAppViewContainer"], .stApp {
   background: none !important;
   background-color: white !important;
 }
-
-/* Tiêu đề và nút giữ kiểu đẹp */
 h1 {
   text-align: center;
   color: #0d47a1;
@@ -57,16 +52,13 @@ div.stButton > button {
 # ================================
 # 🏫 LOGO VÀ TIÊU ĐỀ
 # ================================
-
 def load_logo_base64(path):
-    """Đọc file ảnh và chuyển sang base64 để hiển thị."""
     try:
         with open(path, "rb") as f:
             return base64.b64encode(f.read()).decode()
     except FileNotFoundError:
         return None
 
-# 🔍 Tìm logo theo nhiều khả năng (đảm bảo Render nhận đúng)
 possible_paths = [
     Path(__file__).parent / "assets" / "logo.png",
     Path("FRONTEND_STREAMLIT/assets/logo.png"),
@@ -91,11 +83,11 @@ if logo_b64:
     )
 else:
     st.warning("⚠️ Không tìm thấy logo.png, vui lòng đặt vào thư mục 'assets/'.")
+
 # ================================
-# 🌟 HEADER ĐẸP + LOGO CĂN GIỮA
+# 🌟 HEADER
 # ================================
-st.markdown(
-    """
+st.markdown("""
     <style>
         .app-header {
             background: linear-gradient(135deg, #e3f2fd 0%, #fffde7 100%);
@@ -105,10 +97,6 @@ st.markdown(
             margin-bottom: 20px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             animation: fadeIn 1.2s ease-in-out;
-        }
-        .app-header img {
-            width: 110px;
-            margin-bottom: 10px;
         }
         .app-header h1 {
             font-family: 'Segoe UI', sans-serif;
@@ -133,29 +121,13 @@ st.markdown(
         <h1>📚 Hệ thống ôn tập trắc nghiệm thông minh AI – Chiron26</h1>
         <p>"Học thông minh, kiến tạo tương lai"</p>
     </div>
-    """,
-    unsafe_allow_html=True
-)
+""", unsafe_allow_html=True)
 
 # ================================
-# 💬 TIÊU ĐỀ
+# 💬 SIDEBAR
 # ================================
-#st.title("📚📚 Hệ thống ôn tập trắc nghiệm thông minh AI - Chiron26")
-
-# ================================
-# 💬 SIDEBAR - THÔNG TIN & HƯỚNG DẪN
-# ================================
-
 with st.sidebar:
-    logo_path = Path(__file__).parent / "assets" / "logo.png"
-    if not logo_path.exists():
-        logo_path = Path("FRONTEND_STREAMLIT/assets/logo.png")
-
-    if logo_path.exists():
-        st.image(str(logo_path), width=80)
-    else:
-        st.warning("⚠️ Không tìm thấy logo.png, vui lòng đặt vào thư mục 'assets/'.")
-
+    st.image(str(Path("assets/logo.png")), width=80)
     st.markdown("## 🧭 Hướng dẫn sử dụng")
     st.markdown("""
     1. Chọn **môn học**, **lớp học** và **chủ đề**.  
@@ -164,20 +136,18 @@ with st.sidebar:
     4. Xem **kết quả & đáp án chi tiết** ngay sau khi nộp.
     """)
     st.markdown("---")
-    st.markdown("## 🤖 Thông tin hệ thống")
     st.info("""
-    **AI-Chiron26** là hệ thống ôn tập trắc nghiệm thông minh. 
-    Được phát triển dựa trên công nghệ **AI và LLM**.
-    Hỗ trợ học sinh và giáo viên tạo, luyện tập và phân tích đề thi.  
+    **AI-Chiron26** là hệ thống ôn tập trắc nghiệm thông minh 
+    dựa trên công nghệ **AI và LLM** hỗ trợ học sinh và giáo viên.
     """)
     st.markdown("""
-    📞 **Liên hệ hỗ trợ:**  
+    📞 **Liên hệ:**  
     Nguyễn Trung Thành  
     ✉️ [trungthanhbmissla@gmail.com](trungthanhbmissla@gmail.com)
     """)
 
 # ================================
-# ⚙️ KHỞI TẠO SESSION STATE
+# ⚙️ SESSION STATE
 # ================================
 defaults = {
     "quiz_data": None,
@@ -191,7 +161,7 @@ for k, v in defaults.items():
         st.session_state[k] = v
 
 # ================================
-# 📘 ĐỌC FILE CHỦ ĐỀ
+# 📘 ĐỌC CHỦ ĐỀ
 # ================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TOPICS_FILE = os.path.abspath(os.path.join(BASE_DIR, "..", "data", "topics.json"))
@@ -203,39 +173,35 @@ if not os.path.exists(TOPICS_FILE):
 with open(TOPICS_FILE, "r", encoding="utf-8") as f:
     topics_data = json.load(f)
 
-if not topics_data or not isinstance(topics_data, dict):
-    st.error("⚠️ Dữ liệu trong 'topics.json' không hợp lệ hoặc rỗng!")
-    st.stop()
-
-# ================================
-# GIAO DIỆN NHẬP LIỆU
-# ================================
 subjects = list(topics_data.keys())
 col1, col2 = st.columns(2)
 subject = col1.selectbox("📘 Chọn môn học", subjects)
-
 grades = list(topics_data[subject].keys())
-grade = col2.selectbox("🎓 Chọn khối lớp", grades, index=min(len(grades)-1, 3))
+grade = col2.selectbox("🎓 Chọn khối lớp", grades)
 topic = st.selectbox("📖 Chọn chủ đề", topics_data[subject][grade])
 
 # ================================
-# GỌI API TẠO ĐỀ
+# 🧠 GỌI API BACKEND (SỬA 403)
 # ================================
 if st.button("🚀 Tạo đề trắc nghiệm", type="primary"):
     with st.spinner("🧠 AI Chiron26 đang soạn đề, vui lòng chờ..."):
         try:
-            # 🔍 Xác định URL backend
-            render_url = os.environ.get("RENDER_EXTERNAL_URL")
+            # ✅ Ưu tiên: dùng biến môi trường tự đặt BACKEND_URL
+            api_url = os.getenv("BACKEND_URL")
 
-            if render_url:
-                # 🧩 Khi deploy trên Render (chung Flask + Streamlit)
-                api_url = f"{render_url.rstrip('/')}/api/generate-quiz"
-            else:
-                # 🧩 Khi chạy local
-                api_url = "http://127.0.0.1:5000/api/generate-quiz"
+            # ✅ Nếu không có, suy ra URL Render (nếu Streamlit và Flask cùng deploy)
+            if not api_url:
+                render_service = os.getenv("RENDER_SERVICE_NAME")
+                if render_service:
+                    api_url = f"https://{render_service}.onrender.com/api/generate-quiz"
+                else:
+                    api_url = "http://127.0.0.1:5000/api/generate-quiz"
+
+            # In ra log URL đang dùng
+            st.write(f"🔗 Gọi API: {api_url}")
 
             payload = {"subject": subject, "grade": grade, "topic": topic}
-            response = requests.post(api_url, json=payload)
+            response = requests.post(api_url, json=payload, timeout=60)
 
             if response.status_code == 200:
                 st.session_state.quiz_data = response.json()
@@ -247,7 +213,7 @@ if st.button("🚀 Tạo đề trắc nghiệm", type="primary"):
             st.error(f"❌ Lỗi kết nối backend: {e}")
 
 # ================================
-# HIỂN THỊ ĐỀ & KẾT QUẢ
+# 📋 HIỂN THỊ ĐỀ & CHẤM
 # ================================
 if st.session_state.quiz_data and "questions" in st.session_state.quiz_data:
     TIME_LIMIT = 15 * 60
@@ -296,65 +262,26 @@ if st.session_state.quiz_data and "questions" in st.session_state.quiz_data:
         with st.form("quiz_form"):
             for i, q in enumerate(questions):
                 st.subheader(f"Câu {i+1}: {q['question']}")
-                if q["type"] == "mcq":
-                    st.session_state.user_answers[i] = st.radio(
-                        "Chọn đáp án:", q["options"], index=None, key=f"q{i}"
-                    )
-                else:
-                    st.session_state.user_answers[i] = st.radio(
-                        "Chọn đáp án:", ["Đúng", "Sai"], index=None, key=f"q{i}"
-                    )
+                st.session_state.user_answers[i] = st.radio(
+                    "Chọn đáp án:",
+                    q.get("options", ["A", "B", "C", "D"]),
+                    index=None,
+                    key=f"q{i}"
+                )
                 st.markdown("---")
 
-            submit_btn = st.form_submit_button("🛑 Nộp bài")
-            if submit_btn:
+            if st.form_submit_button("🛑 Nộp bài"):
                 st.session_state.submitted = True
                 st.session_state.end_time = time.time()
                 st.rerun()
 
     else:
         score = 0
-        correct_answers = []
-
         for i, q in enumerate(questions):
-            user_ans = st.session_state.user_answers.get(i)
-
-            # ✅ Xác định đáp án đúng
-            if q["type"] == "mcq":
-                # Lấy option bắt đầu bằng ký tự đáp án (A/B/C/D)
-                correct = next(
-                    (opt for opt in q["options"] if opt.strip().startswith(q["answer"].strip())),
-                    None
-                )
-            elif q["type"] in ["truefalse", "true_false"]:
-                # Đáp án là "A" hoặc "B" => chuyển sang Đúng/Sai
-                correct = "Đúng" if q["answer"].strip().upper() == "A" else "Sai"
-            else:
-                correct = None
-
-            # ✅ So sánh kết quả
-            if user_ans and correct and user_ans.strip() == correct.strip():
+            ans = st.session_state.user_answers.get(i)
+            correct = q.get("answer", "").strip()
+            if ans and correct and ans.strip().startswith(correct):
                 score += 1
-
-            correct_answers.append(correct)
-
-        # ✅ Hiển thị kết quả tổng hợp
         total = len(questions)
         st.success(f"🎯 Kết quả: {score}/{total} câu đúng ({score/total*100:.1f}%)")
         st.balloons()
-
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("📊 Xem lại đáp án"):
-                with st.expander("📋 Chi tiết kết quả", expanded=True):
-                    for i, q in enumerate(questions):
-                        st.markdown(f"**Câu {i+1}:** {q['question']}")
-                        st.info(f"✅ Đáp án đúng: {correct_answers[i]}")
-                        st.write(f"👉 Bạn chọn: {st.session_state.user_answers.get(i) or 'Chưa chọn'}")
-                        st.markdown("---")
-
-        with col2:
-            if st.button("🔁 Làm bài mới"):
-                for k in defaults.keys():
-                    st.session_state[k] = defaults[k]
-                st.rerun()

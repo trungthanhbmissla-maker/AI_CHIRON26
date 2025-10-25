@@ -3,7 +3,7 @@ import os
 import time
 import traceback
 import re
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor
@@ -23,7 +23,10 @@ except Exception:
 # ---------------------------
 load_dotenv()
 app = Flask(__name__)
-CORS(app)
+# Explicit CORS config (allows all origins — fine for dev; tighten in production)
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+
+app.config["JSON_SORT_KEYS"] = False
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("GOOGLE_API_FALLBACK", "")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
@@ -54,6 +57,44 @@ MODELS_TO_TRY = [
     "gemini-2.5-flash-lite-preview-09-2025",
     "gemini-2.5-flash-native-audio-preview-09-2025",
 ]
+
+# ---------------------------
+# Middleware: log request for debugging
+# ---------------------------
+@app.before_request
+def log_request_info():
+    try:
+        app.logger.info("----- Incoming Request -----")
+        app.logger.info(f"Remote Addr: {request.remote_addr}")
+        app.logger.info(f"Method: {request.method} URL: {request.url}")
+        headers = {k: v for k, v in request.headers.items()}
+        app.logger.info(f"Headers: {headers}")
+        # Avoid logging huge bodies but log content-type and length
+        app.logger.info(f"Content-Type: {request.content_type} Content-Length: {request.content_length}")
+    except Exception as e:
+        app.logger.warning(f"Failed to log request info: {e}")
+
+# Ensure preflight requests (OPTIONS) return 200 quickly
+@app.route("/", methods=["OPTIONS"])
+@app.route("/<path:anypath>", methods=["OPTIONS"])
+def handle_options(anypath=None):
+    resp = make_response()
+    resp.status_code = 200
+    return resp
+
+# After-request to ensure proper CORS and allow headers (helps with proxies/CDN)
+@app.after_request
+def add_cors_headers(response):
+    response.headers.setdefault("Access-Control-Allow-Origin", "*")
+    response.headers.setdefault("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    response.headers.setdefault("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept")
+    response.headers.setdefault("Access-Control-Expose-Headers", "Content-Type, Authorization")
+    return response
+
+# Health check route
+@app.route("/healthz", methods=["GET"])
+def healthz():
+    return jsonify({"status": "ok"}), 200
 
 # ---------------------------
 # 🧠 Sinh nội dung từ AI
@@ -169,7 +210,7 @@ def normalize_math_symbols(text: str) -> str:
     text = re.sub(r"\^2\b", "²", text)
     text = re.sub(r"\^3\b", "³", text)
     text = re.sub(
-        r"\^\{(\d)\}", 
+        r"\^\{(\d)\}",
         lambda m: "²" if m.group(1) == "2" else ("³" if m.group(1) == "3" else f"^{m.group(1)}"),
         text
     )
@@ -212,11 +253,22 @@ def normalize_math_symbols(text: str) -> str:
 # ---------------------------
 # 🧩 API sinh đề trắc nghiệm (bản có TTL + force_regen)
 # ---------------------------
-@app.route("/api/generate-quiz", methods=["POST"])
+@app.route("/api/generate-quiz", methods=["POST", "OPTIONS"])
 def api_generate_quiz():
     start_time = time.time()
     try:
-        data = request.get_json(force=True)
+        # Try to parse JSON more robustly
+        try:
+            data = request.get_json(force=False, silent=True)
+            if data is None:
+                # Fallback: try reading raw data as text then json loads
+                raw = request.data.decode("utf-8", errors="ignore")
+                data = json.loads(raw) if raw else {}
+        except Exception:
+            data = {}
+        # If still None -> empty dict
+        data = data or {}
+
         subject = data.get("subject", "")
         grade = str(data.get("grade", ""))
         topic = data.get("topic", "").strip()
@@ -237,7 +289,7 @@ def api_generate_quiz():
             and cached_entry
             and (time.time() - cached_entry["time"] < CACHE_TTL)
         ):
-            app.logger.info("⚡ Trả đề từ cache RAM (hợp lệ trong 5 phút).")
+            app.logger.info("⚡ Trả đề từ cache RAM (hợp lệ trong TTL).")
             return jsonify(cached_entry["data"])
 
         # ---------------------------
@@ -326,8 +378,9 @@ Tạo {num_tf} câu hỏi dạng Đúng/Sai cho học sinh:
 
     except Exception as e:
         app.logger.error(f"❌ Exception: {e}\n{traceback.format_exc()}")
-        return jsonify({"error": str(e)}), 500
-    
+        # If something unexpected occurred, return safe error (do not leak secrets)
+        return jsonify({"error": "Internal server error"}), 500
+
 # ---------------------------
 # 🚀 Run server
 # ---------------------------
