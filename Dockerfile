@@ -1,23 +1,31 @@
 # ===============================
-# 🐍 Sử dụng Python 3.11 slim
+# 🐍 Sử dụng image Python ổn định và nhẹ
 # ===============================
 FROM python:3.11-slim
 
+# ===============================
+# 📁 Thiết lập thư mục làm việc
+# ===============================
 WORKDIR /app
 
-# Sao chép toàn bộ mã nguồn
+# ===============================
+# 🧩 Copy toàn bộ mã nguồn vào container
+# ===============================
 COPY . /app
 
-# Cài pip & các thư viện cần thiết
+# ===============================
+# ⚙️ Cài đặt pip và dependencies
+# ===============================
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r BACKEND_FLASK/requirements.txt || true
 RUN pip install --no-cache-dir -r FRONTEND_STREAMLIT/requirements.txt || true
 
-# Xóa cache để giảm dung lượng image
-RUN rm -rf /root/.cache/pip
-
-# Mở cổng (Render sẽ tự set $PORT)
+# ===============================
+# 🌐 Expose cổng (Render tự gán)
+# ===============================
 EXPOSE 5000
 
-# Chạy start.sh
+# ===============================
+# 🚀 Chạy cả backend & frontend
+# ===============================
 CMD ["bash", "start.sh"]

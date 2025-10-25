@@ -1,6 +1,8 @@
 #!/bin/bash
-echo "🚀 Khởi động Flask backend..."
+# start.sh
+
+# Chạy Flask backend ở nền
 python BACKEND_FLASK/app.py &
 
-echo "🌐 Khởi động Streamlit frontend..."
+# Chạy Streamlit frontend
 streamlit run FRONTEND_STREAMLIT/chiron26.py --server.port=$PORT --server.address=0.0.0.0
