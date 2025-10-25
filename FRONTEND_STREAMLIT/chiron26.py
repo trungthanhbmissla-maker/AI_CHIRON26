@@ -181,36 +181,48 @@ grade = col2.selectbox("🎓 Chọn khối lớp", grades)
 topic = st.selectbox("📖 Chọn chủ đề", topics_data[subject][grade])
 
 # ================================
-# 🧠 GỌI API BACKEND (SỬA 403)
+# 🧠 GỌI API BACKEND (FIX 403 + AUTO DETECT)
 # ================================
 if st.button("🚀 Tạo đề trắc nghiệm", type="primary"):
     with st.spinner("🧠 AI Chiron26 đang soạn đề, vui lòng chờ..."):
         try:
-            # ✅ Ưu tiên: dùng biến môi trường tự đặt BACKEND_URL
+            # Ưu tiên: đọc biến môi trường BACKEND_URL (trên Render)
             api_url = os.getenv("BACKEND_URL")
 
-            # ✅ Nếu không có, suy ra URL Render (nếu Streamlit và Flask cùng deploy)
+            # Nếu không có → dùng URL mặc định trên Render
             if not api_url:
-                render_service = os.getenv("RENDER_SERVICE_NAME")
-                if render_service:
-                    api_url = f"https://{render_service}.onrender.com/api/generate-quiz"
+                api_url = "https://ai-chiron26.onrender.com/api/generate-quiz"
+
+            # 🔧 Gửi dữ liệu sang backend Flask
+            payload = {
+                "subject": subject,
+                "grade": grade,
+                "topic": topic,
+                "num_mcq": num_mcq,
+                "num_tf": num_tf,
+                "force_regen": False
+            }
+
+            # 🧠 Gọi API
+            res = requests.post(api_url, json=payload, timeout=60)
+
+            if res.status_code == 200:
+                data = res.json()
+                if "questions" in data:
+                    st.success(f"✅ Đã tạo {len(data['questions'])} câu hỏi!")
+                    for i, q in enumerate(data["questions"], 1):
+                        st.markdown(f"**Câu {i}:** {q['question']}")
+                        for opt in q.get("options", []):
+                            st.write(f"- {opt}")
+                        st.write(f"**Đáp án:** {q['answer']}")
                 else:
-                    api_url = "http://127.0.0.1:5000/api/generate-quiz"
-
-            # In ra log URL đang dùng
-            st.write(f"🔗 Gọi API: {api_url}")
-
-            payload = {"subject": subject, "grade": grade, "topic": topic}
-            response = requests.post(api_url, json=payload, timeout=60)
-
-            if response.status_code == 200:
-                st.session_state.quiz_data = response.json()
-                st.success("✅ Đề trắc nghiệm đã được tạo thành công!")
+                    st.warning("⚠️ Không có dữ liệu hợp lệ từ backend.")
             else:
-                st.error(f"❌ Backend trả về lỗi {response.status_code}: {response.text}")
+                st.error(f"❌ Lỗi backend ({res.status_code}): {res.text}")
 
         except Exception as e:
             st.error(f"❌ Lỗi kết nối backend: {e}")
+            st.stop()
 
 # ================================
 # 📋 HIỂN THỊ ĐỀ & CHẤM
