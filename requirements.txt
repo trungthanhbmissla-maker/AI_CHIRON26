@@ -1,7 +1,7 @@
 flask
 flask-cors
 python-dotenv
-requests
-streamlit
-pandas
 google-generativeai
+streamlit
+requests
+pandas
