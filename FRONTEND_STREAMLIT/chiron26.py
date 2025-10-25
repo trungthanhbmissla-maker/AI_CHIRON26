@@ -59,17 +59,25 @@ div.stButton > button {
 # ================================
 
 def load_logo_base64(path):
+    """Đọc file ảnh và chuyển sang base64 để hiển thị."""
     try:
         with open(path, "rb") as f:
-            data = f.read()
-            return base64.b64encode(data).decode()
+            return base64.b64encode(f.read()).decode()
     except FileNotFoundError:
         return None
 
-# Thử tìm logo trong vài vị trí phổ biến
-for path in ["logo.png", "assets/logo.png", "static/logo.png", "Backend_flask/assets/logo.png"]:
-    logo_b64 = load_logo_base64(path)
-    if logo_b64:
+# 🔍 Tìm logo theo nhiều khả năng (đảm bảo Render nhận đúng)
+possible_paths = [
+    Path(__file__).parent / "assets" / "logo.png",
+    Path("FRONTEND_STREAMLIT/assets/logo.png"),
+    Path("assets/logo.png"),
+    Path("logo.png"),
+]
+
+logo_b64 = None
+for path in possible_paths:
+    if path.exists():
+        logo_b64 = load_logo_base64(path)
         break
 
 if logo_b64:
@@ -82,7 +90,7 @@ if logo_b64:
         unsafe_allow_html=True,
     )
 else:
-    st.warning("⚠️ Không tìm thấy logo.png, vui lòng đặt vào thư mục dự án hoặc 'assets/'.")
+    st.warning("⚠️ Không tìm thấy logo.png, vui lòng đặt vào thư mục 'assets/'.")
 # ================================
 # 🌟 HEADER ĐẸP + LOGO CĂN GIỮA
 # ================================
