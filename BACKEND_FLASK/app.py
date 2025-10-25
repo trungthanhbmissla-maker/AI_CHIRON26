@@ -386,6 +386,9 @@ Tạo {num_tf} câu hỏi dạng Đúng/Sai cho học sinh:
         app.logger.error(f"❌ Exception: {e}\n{traceback.format_exc()}")
         return jsonify({"error": "Internal server error"}), 500
 
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({"message": "✅ AI_CHIRON26 backend is running"}), 200
 
 # ---------------------------
 # 🚀 Run server
