@@ -376,10 +376,16 @@ Tạo {num_tf} câu hỏi dạng Đúng/Sai cho học sinh:
         app.logger.info(f"✅ Sinh đề hoàn tất: {len(result['questions'])} câu ({elapsed} ms)")
         return jsonify(result)
 
+    # 🧱 Bắt method không hợp lệ (ví dụ Render gửi GET)
+    except werkzeug.exceptions.MethodNotAllowed:
+        app.logger.warning("⚠️ Method not allowed on /api/generate-quiz")
+        return jsonify({"error": "Method not allowed"}), 405
+
+    # 🧱 Bắt các lỗi khác, tránh lộ thông tin
     except Exception as e:
         app.logger.error(f"❌ Exception: {e}\n{traceback.format_exc()}")
-        # If something unexpected occurred, return safe error (do not leak secrets)
         return jsonify({"error": "Internal server error"}), 500
+
 
 # ---------------------------
 # 🚀 Run server
