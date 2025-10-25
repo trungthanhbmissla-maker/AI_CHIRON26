@@ -1,1 +1,1 @@
-web: gunicorn backend.app:app
+web: gunicorn BACKEND_FLASK.app:app
