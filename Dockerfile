@@ -1,32 +1,29 @@
-# ===============================
-# 🐍 Sử dụng image Python nhẹ
-# ===============================
-FROM python:3.11-slim
+# ==========================
+# 🐍 Dùng Python 3.10
+# ==========================
+FROM python:3.10
 
-# ===============================
-# 📁 Thiết lập thư mục làm việc
-# ===============================
+# ==========================
+# 📂 Tạo thư mục làm việc
+# ==========================
 WORKDIR /app
 
-# ===============================
-# 🧩 Copy mã nguồn vào container
-# ===============================
+# ==========================
+# 📦 Copy toàn bộ mã nguồn vào container
+# ==========================
 COPY . /app
 
-# ===============================
-# ⚙️ Cài đặt dependencies
-# ===============================
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r BACKEND_FLASK/requirements.txt || true
-RUN pip install --no-cache-dir -r FRONTEND_STREAMLIT/requirements.txt || true
+# ==========================
+# 🧩 Cài thư viện cần thiết
+# ==========================
+RUN pip install --no-cache-dir flask flask-cors python-dotenv google-generativeai streamlit requests pandas
 
-# ===============================
-# 🌐 Mở cổng cho Render (Render gán PORT)
-# ===============================
-EXPOSE 5000
-EXPOSE 8501
+# ==========================
+# 🌐 Cấu hình cổng (Render sẽ map tự động vào $PORT)
+# ==========================
+EXPOSE 10000
 
-# ===============================
-# 🏁 Chạy script khởi động cả Flask + Streamlit
-# ===============================
-CMD ["bash", "start.sh"]
+# ==========================
+# 🚀 Chạy cả Flask và Streamlit song song
+# ==========================
+CMD bash -c "python BACKEND_FLASK/app.py & streamlit run FRONTEND_STREAMLIT/chiron26.py --server.port=\$PORT --server.address=0.0.0.0"

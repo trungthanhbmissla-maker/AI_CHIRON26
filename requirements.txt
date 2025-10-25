@@ -1,10 +1,7 @@
-# Backend
-Flask
-Flask-Cors
-gunicorn
+flask
+flask-cors
 python-dotenv
-google-generativeai
-
-# Frontend
-streamlit
 requests
+streamlit
+pandas
+google-generativeai
