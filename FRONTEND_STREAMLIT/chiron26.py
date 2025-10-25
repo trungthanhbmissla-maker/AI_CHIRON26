@@ -224,8 +224,12 @@ topic = st.selectbox("📖 Chọn chủ đề", topics_data[subject][grade])
 if st.button("🚀 Tạo đề trắc nghiệm", type="primary"):
     with st.spinner("🧠 AI Chiron26 đang soạn đề, vui lòng chờ..."):
         try:
-            # 🧩 Khi deploy chung Flask + Streamlit trên Render → gọi nội bộ
-            api_url = "/api/generate-quiz"
+            # 🧩 Tự động xác định URL backend (Render hoặc local)
+            render_url = os.environ.get("RENDER_EXTERNAL_URL")
+            if render_url:
+                api_url = f"{render_url}/api/generate-quiz"
+            else:
+                api_url = "http://127.0.0.1:5000/api/generate-quiz"
 
             payload = {"subject": subject, "grade": grade, "topic": topic}
             response = requests.post(api_url, json=payload)
@@ -241,6 +245,7 @@ if st.button("🚀 Tạo đề trắc nghiệm", type="primary"):
 
         except Exception as e:
             st.error(f"❌ Lỗi kết nối backend: {e}")
+
 # ================================
 # HIỂN THỊ ĐỀ & KẾT QUẢ
 # ================================
