@@ -192,6 +192,10 @@ if st.button("🚀 Tạo đề trắc nghiệm", type="primary"):
             # Nếu không có → dùng URL mặc định trên Render
             if not api_url:
                 api_url = "https://ai-chiron26.onrender.com/api/generate-quiz"
+                
+            # 🧮 Số lượng câu hỏi mặc định
+            num_mcq = 10
+            num_tf = 4
 
             # 🔧 Gửi dữ liệu sang backend Flask
             payload = {
