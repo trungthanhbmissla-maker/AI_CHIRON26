@@ -1,3 +1,4 @@
+from werkzeug.exceptions import MethodNotAllowed
 import json
 import os
 import time
@@ -269,11 +270,23 @@ def api_generate_quiz():
         # If still None -> empty dict
         data = data or {}
 
+        # Log incoming payload (giúp debug)
+        app.logger.info(f"Payload received: {data}")
+
         subject = data.get("subject", "")
         grade = str(data.get("grade", ""))
         topic = data.get("topic", "").strip()
-        num_mcq = int(data.get("num_mcq", 10))
-        num_tf = int(data.get("num_tf", 4))
+
+        # Parse numbers an toàn (nếu frontend không gửi, dùng default)
+        try:
+            num_mcq = int(data.get("num_mcq", 10) or 10)
+        except (ValueError, TypeError):
+            num_mcq = 10
+        try:
+            num_tf = int(data.get("num_tf", 4) or 4)
+        except (ValueError, TypeError):
+            num_tf = 4
+
         force_regen = bool(data.get("force_regen", False))
 
         CACHE_TTL = 120  # ⏱ 2 phút
@@ -291,6 +304,11 @@ def api_generate_quiz():
         ):
             app.logger.info("⚡ Trả đề từ cache RAM (hợp lệ trong TTL).")
             return jsonify(cached_entry["data"])
+
+        # Nếu client gọi mà không có client AI config -> trả lỗi rõ
+        if genai is None or not GOOGLE_API_KEY:
+            app.logger.error("AI client not configured (genai or GOOGLE_API_KEY missing).")
+            return jsonify({"error": "AI service not configured"}), 503
 
         # ---------------------------
         # PROMPT 1: MCQ
@@ -362,7 +380,7 @@ Tạo {num_tf} câu hỏi dạng Đúng/Sai cho học sinh:
         # 🔢 Chuẩn hóa ký hiệu toán học
         for q in all_questions:
             for field in ["question", "answer"]:
-                if field in q:
+                if field in q and isinstance(q[field], str):
                     q[field] = normalize_math_symbols(q[field])
             if "options" in q and isinstance(q["options"], list):
                 q["options"] = [normalize_math_symbols(opt) for opt in q["options"]]
@@ -376,12 +394,10 @@ Tạo {num_tf} câu hỏi dạng Đúng/Sai cho học sinh:
         app.logger.info(f"✅ Sinh đề hoàn tất: {len(result['questions'])} câu ({elapsed} ms)")
         return jsonify(result)
 
-    # 🧱 Bắt method không hợp lệ (ví dụ Render gửi GET)
-    except werkzeug.exceptions.MethodNotAllowed:
+    except MethodNotAllowed:
         app.logger.warning("⚠️ Method not allowed on /api/generate-quiz")
         return jsonify({"error": "Method not allowed"}), 405
 
-    # 🧱 Bắt các lỗi khác, tránh lộ thông tin
     except Exception as e:
         app.logger.error(f"❌ Exception: {e}\n{traceback.format_exc()}")
         return jsonify({"error": "Internal server error"}), 500
