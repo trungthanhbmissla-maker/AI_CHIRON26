@@ -229,17 +229,17 @@ if st.button("🚀 Tạo đề trắc nghiệm", type="primary"):
             st.stop()
 
 # ================================
-# 📋 HIỂN THỊ ĐỀ & CHẤM
+# 📋 HIỂN THỊ ĐỀ & CHẤM (THAY THẾ TOÀN BỘ KHỐI HIỂN THỊ)
 # ================================
-if st.session_state.quiz_data and "questions" in st.session_state.quiz_data:
+if st.session_state.get("quiz_data") and "questions" in st.session_state["quiz_data"]:
     TIME_LIMIT = 15 * 60
-    questions = st.session_state.quiz_data["questions"]
+    questions = st.session_state["quiz_data"]["questions"]
 
     st.markdown("---")
     st.header(f"📝 Đề trắc nghiệm môn {subject} - Lớp {grade}")
     st.caption(f"📖 Chủ đề: {topic}")
 
-    if st.session_state.start_time is None:
+    if st.session_state.get("start_time") is None:
         st.session_state.start_time = time.time()
 
     end_time = int(st.session_state.start_time + TIME_LIMIT)
@@ -274,30 +274,84 @@ if st.session_state.quiz_data and "questions" in st.session_state.quiz_data:
     </script>
     """, height=60)
 
-    if not st.session_state.submitted:
+    # ensure user_answers dict exists
+    if "user_answers" not in st.session_state or not isinstance(st.session_state.user_answers, dict):
+        st.session_state.user_answers = {}
+
+    # show form for taking quiz
+    if not st.session_state.get("submitted", False):
         with st.form("quiz_form"):
             for i, q in enumerate(questions):
-                st.subheader(f"Câu {i+1}: {q['question']}")
-                st.session_state.user_answers[i] = st.radio(
-                    "Chọn đáp án:",
-                    q.get("options", ["A", "B", "C", "D"]),
-                    index=None,
-                    key=f"q{i}"
-                )
+                qidx = i  # zero-based index stored in session
+                st.subheader(f"Câu {i+1}: {q.get('question','')}")
+                opts = q.get("options") or []
+                # if no options provided (defensive), create placeholders
+                if not opts:
+                    opts = ["A. Đúng", "B. Sai"] if q.get("type") in ("truefalse", "true_false") else ["A", "B", "C", "D"]
+
+                # pre-select if user previously selected (keeps state on rerun)
+                pre = None
+                prev = st.session_state.user_answers.get(qidx)
+                if prev and prev in opts:
+                    pre = opts.index(prev)
+
+                # render radio and save selection in session_state.user_answers
+                choice = st.radio("Chọn đáp án:", opts, index=pre if pre is not None else 0, key=f"q{qidx}")
+                st.session_state.user_answers[qidx] = choice
                 st.markdown("---")
 
-            if st.form_submit_button("🛑 Nộp bài"):
+            submit_btn = st.form_submit_button("🛑 Nộp bài")
+            if submit_btn:
                 st.session_state.submitted = True
                 st.session_state.end_time = time.time()
                 st.rerun()
 
     else:
+        # grading
         score = 0
-        for i, q in enumerate(questions):
-            ans = st.session_state.user_answers.get(i)
-            correct = q.get("answer", "").strip()
-            if ans and correct and ans.strip().startswith(correct):
-                score += 1
         total = len(questions)
+
+        def option_letter(opt):
+            """Return leading letter (A/B/C/...) or special for Đúng/Sai."""
+            if not isinstance(opt, str) or len(opt.strip()) == 0:
+                return ""
+            s = opt.strip()
+            # if begins with letter and dot: "A. ..." -> "A"
+            if len(s) >= 1 and s[0].isalpha():
+                return s[0].upper()
+            # fallback for "Đúng"/"Sai"
+            if s.lower().startswith("đ") or s.lower().startswith("dung") or s.lower().startswith("d"):
+                return "A"  # map Đúng -> A
+            if s.lower().startswith("s") or s.lower().startswith("sai"):
+                return "B"  # map Sai -> B
+            return s[0].upper()
+
+        for i, q in enumerate(questions):
+            user_choice = st.session_state.user_answers.get(i)
+            correct_raw = q.get("answer", "").strip()
+            qtype = q.get("type", "mcq")
+
+            # normalize user's selected letter and correct letter
+            user_letter = option_letter(user_choice) if user_choice else ""
+            correct_letter = correct_raw.strip().upper() if correct_raw else ""
+
+            # For true/false where backend may return "A" or "B" as answer,
+            # we already map choices so comparing letters works.
+            if user_letter and correct_letter and user_letter.startswith(correct_letter):
+                score += 1
+
         st.success(f"🎯 Kết quả: {score}/{total} câu đúng ({score/total*100:.1f}%)")
         st.balloons()
+
+        # show detailed answers
+        st.markdown("### 🔍 Đáp án chi tiết:")
+        for i, q in enumerate(questions):
+            st.markdown(f"**Câu {i+1}:** {q.get('question','')}")
+            opts = q.get("options") or []
+            for opt in opts:
+                st.write(f"- {opt}")
+            st.info(f"✅ Đáp án: {q.get('answer','')}")
+            st.markdown("---")
+
+else:
+    st.info("Chưa có đề — nhấn '🚀 Tạo đề trắc nghiệm' để bắt đầu.")
