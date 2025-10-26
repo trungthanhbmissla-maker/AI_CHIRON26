@@ -124,7 +124,25 @@ if st.button("🚀 Tạo đề trắc nghiệm", type="primary"):
         try:
             backend_url = os.getenv("BACKEND_URL", "https://ai-chiron26.onrender.com/api/generate-quiz")
             payload = {"subject": subject, "grade": grade, "topic": topic, "num_mcq": 10, "num_tf": 4}
-            res = requests.post(backend_url, json=payload, timeout=60)
+            try:
+                # 🧩 Kiểm tra backend có đang hoạt động không
+                ping = requests.get("https://ai-chiron26.onrender.com", timeout=5)
+                if ping.status_code != 200:
+                    st.warning("⚠️ Backend đang khởi động, vui lòng thử lại sau vài giây.")
+                    st.stop()
+            except Exception:
+                st.error("❌ Không thể kết nối tới backend. Thử lại sau 5s.")
+                st.stop()
+
+            # ✅ Nếu backend sẵn sàng thì mới gửi yêu cầu tạo đề
+            try:
+                res = requests.post(backend_url, json=payload, timeout=60)
+                if res.status_code != 200:
+                    st.error(f"❌ Backend trả về lỗi ({res.status_code}): {res.text}")
+                    st.stop()
+            except requests.exceptions.RequestException as e:
+                st.error(f"⚠️ Không thể gửi yêu cầu tới backend: {e}")
+                st.stop()
 
             if res.status_code == 200:
                 data = res.json()
