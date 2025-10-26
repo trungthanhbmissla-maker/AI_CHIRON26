@@ -229,7 +229,7 @@ if st.button("🚀 Tạo đề trắc nghiệm", type="primary"):
             st.stop()
 
 # ================================
-# 📋 HIỂN THỊ ĐỀ & CHẤM (THAY THẾ TOÀN BỘ KHỐI HIỂN THỊ)
+# 📋 HIỂN THỊ ĐỀ & CHẤM (TỐI ƯU + AUTO SUBMIT AN TOÀN)
 # ================================
 if st.session_state.get("quiz_data") and "questions" in st.session_state["quiz_data"]:
     TIME_LIMIT = 15 * 60
@@ -239,10 +239,22 @@ if st.session_state.get("quiz_data") and "questions" in st.session_state["quiz_d
     st.header(f"📝 Đề trắc nghiệm môn {subject} - Lớp {grade}")
     st.caption(f"📖 Chủ đề: {topic}")
 
+    # ========================
+    # ⏰ KHỞI TẠO ĐỒNG HỒ
+    # ========================
     if st.session_state.get("start_time") is None:
         st.session_state.start_time = time.time()
 
     end_time = int(st.session_state.start_time + TIME_LIMIT)
+    remaining = max(0, int(end_time - time.time()))
+
+    # Nếu hết giờ thì tự động nộp
+    if remaining <= 0 and not st.session_state.get("submitted", False):
+        st.session_state.submitted = True
+        st.session_state.end_time = time.time()
+        st.experimental_set_query_params(submitted="1")
+        st.stop()
+
     components.html(f"""
     <div id="timer" style="
         position: fixed;
@@ -256,7 +268,7 @@ if st.session_state.get("quiz_data") and "questions" in st.session_state["quiz_d
         font-size: 18px;
         box-shadow: 0 0 6px rgba(0,0,0,0.2);
         z-index: 9999;">
-        ⏱ 15:00
+        ⏱ {remaining//60:02d}:{remaining%60:02d}
     </div>
     <script>
     const endTime = {end_time} * 1000;
@@ -267,63 +279,77 @@ if st.session_state.get("quiz_data") and "questions" in st.session_state["quiz_d
         const s = String(remaining%60).padStart(2,'0');
         const div = document.getElementById("timer");
         if (div) div.textContent = `⏱ ${{m}}:${{s}}`;
-        if (remaining<=0) window.location.search='?auto_submit=1';
+        if (remaining <= 0) {{
+            div.textContent = "⏱ Hết giờ!";
+        }}
     }}
-    setInterval(updateTimer,1000);
+    setInterval(updateTimer, 1000);
     updateTimer();
     </script>
     """, height=60)
 
-    # ensure user_answers dict exists
+    # ========================
+    # 🧩 TRẠNG THÁI LỰA CHỌN
+    # ========================
     if "user_answers" not in st.session_state or not isinstance(st.session_state.user_answers, dict):
         st.session_state.user_answers = {}
 
-    # show form for taking quiz
+    if st.experimental_get_query_params().get("submitted") == ["1"]:
+        st.session_state.submitted = True
+
+    # ========================
+    # 📄 HIỂN THỊ CÂU HỎI
+    # ========================
     if not st.session_state.get("submitted", False):
         with st.form("quiz_form"):
             for i, q in enumerate(questions):
-                qidx = i  # zero-based index stored in session
+                qidx = i
                 st.subheader(f"Câu {i+1}: {q.get('question','')}")
                 opts = q.get("options") or []
-                # if no options provided (defensive), create placeholders
                 if not opts:
                     opts = ["A. Đúng", "B. Sai"] if q.get("type") in ("truefalse", "true_false") else ["A", "B", "C", "D"]
 
-                # pre-select if user previously selected (keeps state on rerun)
                 pre = None
                 prev = st.session_state.user_answers.get(qidx)
                 if prev and prev in opts:
                     pre = opts.index(prev)
 
-                # render radio and save selection in session_state.user_answers
-                choice = st.radio("Chọn đáp án:", opts, index=pre if pre is not None else 0, key=f"q{qidx}")
+                choice = st.radio(
+                    "Chọn đáp án:",
+                    opts,
+                    index=pre if pre is not None else 0,
+                    key=f"q{qidx}"
+                )
                 st.session_state.user_answers[qidx] = choice
                 st.markdown("---")
 
+            # ========================
+            # 🛑 NỘP BÀI
+            # ========================
             submit_btn = st.form_submit_button("🛑 Nộp bài")
             if submit_btn:
                 st.session_state.submitted = True
                 st.session_state.end_time = time.time()
-                st.rerun()
+                st.experimental_set_query_params(submitted="1")
+                st.stop()
 
+    # ========================
+    # ✅ CHẤM ĐIỂM
+    # ========================
     else:
-        # grading
         score = 0
         total = len(questions)
 
         def option_letter(opt):
-            """Return leading letter (A/B/C/...) or special for Đúng/Sai."""
             if not isinstance(opt, str) or len(opt.strip()) == 0:
                 return ""
             s = opt.strip()
-            # if begins with letter and dot: "A. ..." -> "A"
             if len(s) >= 1 and s[0].isalpha():
                 return s[0].upper()
-            # fallback for "Đúng"/"Sai"
             if s.lower().startswith("đ") or s.lower().startswith("dung") or s.lower().startswith("d"):
-                return "A"  # map Đúng -> A
+                return "A"
             if s.lower().startswith("s") or s.lower().startswith("sai"):
-                return "B"  # map Sai -> B
+                return "B"
             return s[0].upper()
 
         for i, q in enumerate(questions):
@@ -331,19 +357,15 @@ if st.session_state.get("quiz_data") and "questions" in st.session_state["quiz_d
             correct_raw = q.get("answer", "").strip()
             qtype = q.get("type", "mcq")
 
-            # normalize user's selected letter and correct letter
             user_letter = option_letter(user_choice) if user_choice else ""
             correct_letter = correct_raw.strip().upper() if correct_raw else ""
 
-            # For true/false where backend may return "A" or "B" as answer,
-            # we already map choices so comparing letters works.
             if user_letter and correct_letter and user_letter.startswith(correct_letter):
                 score += 1
 
         st.success(f"🎯 Kết quả: {score}/{total} câu đúng ({score/total*100:.1f}%)")
         st.balloons()
 
-        # show detailed answers
         st.markdown("### 🔍 Đáp án chi tiết:")
         for i, q in enumerate(questions):
             st.markdown(f"**Câu {i+1}:** {q.get('question','')}")
@@ -355,3 +377,4 @@ if st.session_state.get("quiz_data") and "questions" in st.session_state["quiz_d
 
 else:
     st.info("Chưa có đề — nhấn '🚀 Tạo đề trắc nghiệm' để bắt đầu.")
+
