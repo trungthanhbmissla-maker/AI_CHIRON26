@@ -20,35 +20,48 @@ st.set_page_config(
 # ================================
 # 💎 CSS TUỲ BIẾN
 # ================================
-st.markdown("""
-<style>
-[data-testid="stSidebar"] img {
-  display: block !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  margin-top: 18px !important;
-  margin-bottom: 14px !important;
-  border-radius: 10px !important;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.18) !important;
-  width: 96px !important;
-}
-html, body, [data-testid="stAppViewContainer"], .stApp {
-  background: none !important;
-  background-color: white !important;
-}
-h1 {
-  text-align: center;
-  color: #0d47a1;
-  font-weight: 800;
-  margin-top: 0;
-}
-div.stButton > button {
-  background-color: #0d47a1 !important;
-  color: white !important;
-  border-radius: 10px !important;
-}
-</style>
-""", unsafe_allow_html=True)
+st.markdown(
+    """
+    <style>
+        .app-header {
+            background: linear-gradient(135deg, #e3f2fd 0%, #fffde7 100%);
+            border-radius: 16px;
+            padding: 25px 15px 15px 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            animation: fadeIn 1.2s ease-in-out;
+        }
+        .app-header img {
+            width: 110px;
+            margin-bottom: 10px;
+        }
+        .app-header h1 {
+            font-family: 'Segoe UI', sans-serif;
+            font-weight: 700;
+            font-size: 32px;
+            color: #1a237e;
+            margin: 0;
+        }
+        .app-header p {
+            font-size: 20px;
+            color: #424242;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
+    <div class="app-header">
+        <h1>📚 Hệ thống ôn tập trắc nghiệm thông minh AI – Chiron26</h1>
+        <p>"Học thông minh, kiến tạo tương lai"</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # ================================
 # 🏫 LOGO & TIÊU ĐỀ
@@ -89,7 +102,8 @@ with st.sidebar:
     st.markdown("---")
     st.info("""
     **AI-Chiron26** là hệ thống ôn tập trắc nghiệm thông minh 
-    dựa trên công nghệ **AI và LLM** hỗ trợ học sinh và giáo viên.
+    dựa trên công nghệ **AI và LLM** hỗ trợ học sinh và giáo viên
+    thực hiện việc ôn tập và soạn thảo đề thi trắc nghiệm.
     """)
     st.markdown("""
     📞 **Liên hệ:**  
@@ -130,7 +144,7 @@ topic = st.selectbox("📖 Chủ đề", topics_data[subject][grade])
 # 🧠 GỌI BACKEND & LƯU SESSION
 # ================================
 if st.button("🚀 Tạo đề trắc nghiệm", type="primary"):
-    with st.spinner("Đang tạo đề, vui lòng chờ..."):
+    with st.spinner("🧭 Chiron26 đang tạo đề, vui lòng chờ..."):
         try:
             backend_url = os.getenv("BACKEND_URL", "https://ai-chiron26.onrender.com/api/generate-quiz")
             payload = {"subject": subject, "grade": grade, "topic": topic, "num_mcq": 10, "num_tf": 4}
@@ -280,9 +294,18 @@ if st.session_state.get("quiz_data") and "questions" in st.session_state["quiz_d
                     except Exception:
                         pre_index = None
 
+                # 🟡 Thêm tùy chọn mặc định "Chưa chọn"
+                opts_with_blank = ["(Chưa chọn)"] + opts
+
+                # Xác định chỉ số đã chọn trước đó (nếu có)
+                pre_index = None
+                prev = st.session_state.user_answers.get(idx)
+                if prev and prev in opts:
+                    pre_index = opts_with_blank.index(prev) if prev in opts else 0
+
                 choice = st.radio(
                     label="Chọn đáp án:",
-                    options=opts,
+                    options=opts_with_blank,
                     index=pre_index if pre_index is not None else 0,
                     key=f"q_{idx}"
                 )
