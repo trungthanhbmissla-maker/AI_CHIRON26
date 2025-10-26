@@ -100,14 +100,18 @@ with st.sidebar:
     4. Xem **kết quả & đáp án chi tiết** ngay sau khi nộp.
     """)
     st.markdown("---")
+    st.markdown("## 📚 Giới thiệu")
     st.info("""
     **AI-Chiron26** là hệ thống ôn tập trắc nghiệm thông minh 
-    dựa trên công nghệ **AI và LLM** hỗ trợ học sinh và giáo viên
-    thực hiện việc ôn tập và soạn thảo đề thi trắc nghiệm.
+    dựa trên công nghệ AI. 
+    Nội dung được xây dựng với 8 môn học và các chủ đề theo đúng
+    chương trình GDPT 2018.
+    AI-Chiron26 được xây dựng với mục tiêu hỗ trợ học sinh và
+    giáo viên thực hiện việc ôn tập và soạn thảo đề thi trắc 
+    nghiệm một cách tiện lợi và chính xác.
     """)
     st.markdown("""
-    📞 **Liên hệ:**  
-    Nguyễn Trung Thành  
+    📞 ##Liên hệ: Nguyễn Trung Thành  
     ✉️ [trungthanhbmissla@gmail.com](trungthanhbmissla@gmail.com)
     """)
 
@@ -298,18 +302,26 @@ if st.session_state.get("quiz_data") and "questions" in st.session_state["quiz_d
                 opts_with_blank = ["(Chưa chọn)"] + opts
 
                 # Xác định chỉ số đã chọn trước đó (nếu có)
-                pre_index = None
                 prev = st.session_state.user_answers.get(idx)
                 if prev and prev in opts:
-                    pre_index = opts_with_blank.index(prev) if prev in opts else 0
+                    pre_index = opts_with_blank.index(prev)
+                else:
+                    pre_index = 0  # 0 = "(Chưa chọn)"
 
+                # Hiển thị radio (mặc định là "Chưa chọn")
                 choice = st.radio(
                     label="Chọn đáp án:",
                     options=opts_with_blank,
-                    index=pre_index if pre_index is not None else 0,
+                    index=pre_index,
                     key=f"q_{idx}"
                 )
-                st.session_state.user_answers[idx] = choice
+
+                # ❗ Chỉ lưu nếu người dùng chọn thật (không phải dòng đầu)
+                if choice != "(Chưa chọn)":
+                    st.session_state.user_answers[idx] = choice
+                elif idx in st.session_state.user_answers:
+                    del st.session_state.user_answers[idx]  # xoá lựa chọn cũ nếu bỏ chọn
+
                 st.markdown("---")
 
             submit_btn = st.form_submit_button("🛑 Nộp bài")
