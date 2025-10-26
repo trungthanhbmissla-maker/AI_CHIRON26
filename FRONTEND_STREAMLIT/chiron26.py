@@ -276,11 +276,12 @@ if st.session_state.get("quiz_data") and "questions" in st.session_state["quiz_d
     except Exception:
         if st.experimental_get_query_params().get("submitted") == ["1"]:
             st.session_state.submitted = True
-
+#---------------------
     # HIỂN THỊ FORM (chỉ 1 nơi)
     if not st.session_state.get("submitted", False):
+        # <-- bắt đầu duy nhất 1 form cho toàn bộ quiz
         with st.form("quiz_form"):
-            for idx, q in enumerate(questions):  # idx is 0-based
+            for idx, q in enumerate(questions):
                 st.subheader(f"Câu {idx+1}: {q.get('question','')}")
                 opts = q.get("options") or []
                 if not opts:
@@ -289,50 +290,32 @@ if st.session_state.get("quiz_data") and "questions" in st.session_state["quiz_d
                     else:
                         opts = ["A", "B", "C", "D"]
 
-                # preselect if exists
-                pre_index = None
+                # ✅ Không chọn sẵn
                 prev = st.session_state.user_answers.get(idx)
                 if prev and prev in opts:
-                    try:
-                        pre_index = opts.index(prev)
-                    except Exception:
-                        pre_index = None
+                    pre_index = opts.index(prev)
+                else:
+                    pre_index = None
 
-                if not st.session_state.get("submitted", False):
-                    with st.form("quiz_form"):
-                        for idx, q in enumerate(questions):
-                            st.subheader(f"Câu {idx+1}: {q.get('question','')}")
-                            opts = q.get("options") or []
-                            if not opts:
-                                if q.get("type", "").lower() in ("truefalse", "true_false"):
-                                    opts = ["A. Đúng", "B. Sai"]
-                                else:
-                                    opts = ["A", "B", "C", "D"]
+                choice = st.radio(
+                    label="Chọn đáp án:",
+                    options=opts,
+                    index=pre_index,
+                    key=f"q_{idx}"
+                )
 
-                            # ✅ Không chọn sẵn
-                            prev = st.session_state.user_answers.get(idx)
-                            if prev and prev in opts:
-                                pre_index = opts.index(prev)
-                            else:
-                                pre_index = None
+                # 🔒 Lưu nếu có chọn
+                if choice:
+                    st.session_state.user_answers[idx] = choice
+                elif idx in st.session_state.user_answers:
+                    del st.session_state.user_answers[idx]
 
-                            choice = st.radio(
-                                label="Chọn đáp án:",
-                                options=opts,
-                                index=pre_index,
-                                key=f"q_{idx}"
-                            )
+                st.markdown("---")
 
-                            # 🔒 Lưu nếu có chọn
-                            if choice:
-                                st.session_state.user_answers[idx] = choice
-                            elif idx in st.session_state.user_answers:
-                                del st.session_state.user_answers[idx]
+            # ---------- nút nộp phải nằm **trong** cùng form này ----------
+            submit_pressed = st.form_submit_button("🛑 Nộp bài")
 
-                            st.markdown("---")
-
-            # nút nộp
-            if st.form_submit_button("🛑 Nộp bài"):
+            if submit_pressed:
                 st.session_state.submitted = True
                 st.session_state.end_time = time.time()
                 try:
@@ -340,6 +323,7 @@ if st.session_state.get("quiz_data") and "questions" in st.session_state["quiz_d
                 except Exception:
                     st.experimental_set_query_params(submitted="1")
                 st.rerun()
+
 
     # ---------------- CHẤM ĐIỂM ----------------
     else:
