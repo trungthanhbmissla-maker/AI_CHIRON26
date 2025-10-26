@@ -1,6 +1,7 @@
 import base64
 import os
 import streamlit as st
+import threading
 import requests
 import json
 import time
@@ -171,8 +172,23 @@ if st.button("🚀 Tạo đề trắc nghiệm", type="primary"):
             st.error(f"❌ Lỗi kết nối backend: {e}")
 
 # ----------------------------
-# 📋 HIỂN THỊ ĐỀ & CHẤM (ỔN ĐỊNH & ĐẦY ĐỦ)
+# 📋 HIỂN THỊ ĐỀ & CHẤM (BẢN ỔN ĐỊNH NHẤT)
 # ----------------------------
+
+# ✅ Giữ backend Render không bị sleep (ping mỗi 5 phút)
+def keep_backend_alive():
+    while True:
+        try:
+            requests.get("https://your-backend.onrender.com/ping", timeout=10)
+        except:
+            pass
+        time.sleep(300)  # 5 phút
+
+threading.Thread(target=keep_backend_alive, daemon=True).start()
+
+# =======================================================
+# 🚀 HIỂN THỊ VÀ CHẤM ĐIỂM
+# =======================================================
 if st.session_state.get("quiz_data") and "questions" in st.session_state["quiz_data"]:
     TIME_LIMIT = 15 * 60
     questions = st.session_state["quiz_data"]["questions"]
@@ -191,7 +207,10 @@ if st.session_state.get("quiz_data") and "questions" in st.session_state["quiz_d
     if remaining <= 0 and not st.session_state.get("submitted", False):
         st.session_state.submitted = True
         st.session_state.end_time = time.time()
-        st.experimental_set_query_params(submitted="1")
+        try:
+            st.query_params["submitted"] = "1"
+        except Exception:
+            st.experimental_set_query_params(submitted="1")
         st.stop()
 
     # timer (JS chỉ update text)
@@ -232,9 +251,13 @@ if st.session_state.get("quiz_data") and "questions" in st.session_state["quiz_d
     if "user_answers" not in st.session_state or not isinstance(st.session_state.user_answers, dict):
         st.session_state.user_answers = {}
 
-    # nếu query param submitted thì set state
-    if st.experimental_get_query_params().get("submitted") == ["1"]:
-        st.session_state.submitted = True
+    # 🔄 Kiểm tra query param submitted (Streamlit mới/cũ đều hỗ trợ)
+    try:
+        if st.query_params.get("submitted") == "1":
+            st.session_state.submitted = True
+    except Exception:
+        if st.experimental_get_query_params().get("submitted") == ["1"]:
+            st.session_state.submitted = True
 
     # HIỂN THỊ FORM (chỉ 1 nơi)
     if not st.session_state.get("submitted", False):
@@ -263,7 +286,6 @@ if st.session_state.get("quiz_data") and "questions" in st.session_state["quiz_d
                     index=pre_index if pre_index is not None else 0,
                     key=f"q_{idx}"
                 )
-                # store as text of option
                 st.session_state.user_answers[idx] = choice
                 st.markdown("---")
 
@@ -271,13 +293,14 @@ if st.session_state.get("quiz_data") and "questions" in st.session_state["quiz_d
             if submit_btn:
                 st.session_state.submitted = True
                 st.session_state.end_time = time.time()
-                st.experimental_set_query_params(submitted="1")
+                try:
+                    st.query_params["submitted"] = "1"
+                except Exception:
+                    st.experimental_set_query_params(submitted="1")
                 st.stop()
 
     else:
-        # ----------------------------
-        # 🧮 CHẤM ĐIỂM ỔN ĐỊNH & AN TOÀN
-        # ----------------------------
+        # 🧮 CHẤM ĐIỂM ỔN ĐỊNH
         score = 0
         total = len(questions)
 
@@ -299,19 +322,15 @@ if st.session_state.get("quiz_data") and "questions" in st.session_state["quiz_d
         for idx, q in enumerate(questions):  # idx 0-based
             user_choice = st.session_state.user_answers.get(idx, "") or ""
             correct_raw = q.get("answer", "") or ""
-
             user_letter = option_letter(user_choice)
             correct_letter = option_letter(correct_raw)
-
             if user_letter and correct_letter and user_letter == correct_letter:
                 score += 1
 
         st.success(f"🎯 Kết quả: {score}/{total} câu đúng ({(score/total*100) if total>0 else 0:.1f}%)")
         st.balloons()
 
-        # ----------------------------
         # 📋 HIỂN THỊ ĐÁP ÁN CHI TIẾT
-        # ----------------------------
         st.markdown("### 🔍 Đáp án chi tiết:")
         for idx, q in enumerate(questions):
             st.markdown(f"**Câu {idx+1}:** {q.get('question','')}")
@@ -326,4 +345,3 @@ if st.session_state.get("quiz_data") and "questions" in st.session_state["quiz_d
 
 else:
     st.info("Chưa có đề — nhấn '🚀 Tạo đề trắc nghiệm' để bắt đầu.")
-
