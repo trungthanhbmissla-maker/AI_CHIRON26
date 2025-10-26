@@ -188,10 +188,11 @@ if st.button("🚀 Tạo đề trắc nghiệm", type="primary"):
         try:
             # Ưu tiên: đọc biến môi trường BACKEND_URL (trên Render)
             api_url = os.getenv("BACKEND_URL")
+            st.write(f"🔗 Đang gọi API tới: {api_url}")
 
             # Nếu không có → dùng URL mặc định trên Render
             if not api_url:
-                api_url = "https://ai-chiron26.onrender.com/api/generate-quiz"
+                api_url = "https://ai-chiron26.onrender.com/generate"
                 
             # 🧮 Số lượng câu hỏi mặc định
             num_mcq = 10
