@@ -204,12 +204,16 @@ if st.session_state.quiz_data and "questions" in st.session_state.quiz_data:
     </script>
     """, height=60)
 
+    # ======================
+    # 🧩 LÀM BÀI
+    # ======================
     if not st.session_state.submitted:
         with st.form("quiz_form"):
             for i, q in enumerate(questions):
                 st.subheader(f"Câu {i+1}: {q.get('question', '')}")
                 opts = q.get("options") or ["A", "B", "C", "D"]
-                choice = st.radio("Chọn đáp án:", opts, key=f"q_{i}")
+                # 👇 Không mặc định chọn đáp án đầu tiên
+                choice = st.radio("Chọn đáp án:", opts, key=f"q_{i}", index=None)
                 st.session_state.user_answers[i] = choice
                 st.markdown("---")
 
@@ -219,6 +223,9 @@ if st.session_state.quiz_data and "questions" in st.session_state.quiz_data:
                 st.query_params["submitted"] = "1"
                 st.rerun()
 
+    # ======================
+    # ✅ CHẤM ĐIỂM & HIỂN THỊ KẾT QUẢ
+    # ======================
     else:
         score = sum(
             (st.session_state.user_answers.get(i, "")[:1].upper() ==
@@ -236,5 +243,13 @@ if st.session_state.quiz_data and "questions" in st.session_state.quiz_data:
                 st.write(f"- {opt} {marker}")
             st.info(f"✅ Đáp án đúng: {q.get('answer', '')}")
             st.markdown("---")
+
+        # 👇 Thêm nút "Làm bài khác"
+        if st.button("🔁 Làm bài khác"):
+            for key in list(st.session_state.keys()):
+                if key.startswith("q_") or key in ["quiz_data", "submitted", "start_time", "end_time", "user_answers"]:
+                    del st.session_state[key]
+            st.experimental_rerun()
+
 else:
     st.info("Chưa có đề — nhấn **🚀 Tạo đề trắc nghiệm** để bắt đầu.")
