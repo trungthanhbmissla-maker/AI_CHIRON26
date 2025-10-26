@@ -298,74 +298,77 @@ if st.session_state.get("quiz_data") and "questions" in st.session_state["quiz_d
                     except Exception:
                         pre_index = None
 
-                # 🟡 Thêm tùy chọn mặc định "Chưa chọn"
-                opts_with_blank = ["(Chưa chọn)"] + opts
+                if not st.session_state.get("submitted", False):
+                    with st.form("quiz_form"):
+                        for idx, q in enumerate(questions):
+                            st.subheader(f"Câu {idx+1}: {q.get('question','')}")
+                            opts = q.get("options") or []
+                            if not opts:
+                                if q.get("type", "").lower() in ("truefalse", "true_false"):
+                                    opts = ["A. Đúng", "B. Sai"]
+                                else:
+                                    opts = ["A", "B", "C", "D"]
 
-                # Xác định chỉ số đã chọn trước đó (nếu có)
-                prev = st.session_state.user_answers.get(idx)
-                if prev and prev in opts:
-                    pre_index = opts_with_blank.index(prev)
-                else:
-                    pre_index = 0  # 0 = "(Chưa chọn)"
+                            # ✅ Không chọn sẵn
+                            prev = st.session_state.user_answers.get(idx)
+                            if prev and prev in opts:
+                                pre_index = opts.index(prev)
+                            else:
+                                pre_index = None
 
-                # Hiển thị radio (mặc định là "Chưa chọn")
-                choice = st.radio(
-                    label="Chọn đáp án:",
-                    options=opts_with_blank,
-                    index=pre_index,
-                    key=f"q_{idx}"
-                )
+                            choice = st.radio(
+                                label="Chọn đáp án:",
+                                options=opts,
+                                index=pre_index,
+                                key=f"q_{idx}"
+                            )
 
-                # ❗ Chỉ lưu nếu người dùng chọn thật (không phải dòng đầu)
-                if choice != "(Chưa chọn)":
-                    st.session_state.user_answers[idx] = choice
-                elif idx in st.session_state.user_answers:
-                    del st.session_state.user_answers[idx]  # xoá lựa chọn cũ nếu bỏ chọn
+                            # 🔒 Lưu nếu có chọn
+                            if choice:
+                                st.session_state.user_answers[idx] = choice
+                            elif idx in st.session_state.user_answers:
+                                del st.session_state.user_answers[idx]
 
-                st.markdown("---")
+                            st.markdown("---")
 
-            submit_btn = st.form_submit_button("🛑 Nộp bài")
-            if submit_btn:
+            # nút nộp
+            if st.form_submit_button("🛑 Nộp bài"):
                 st.session_state.submitted = True
                 st.session_state.end_time = time.time()
                 try:
                     st.query_params["submitted"] = "1"
                 except Exception:
                     st.experimental_set_query_params(submitted="1")
-                st.stop()
+                st.rerun()
 
+    # ---------------- CHẤM ĐIỂM ----------------
     else:
-        # 🧮 CHẤM ĐIỂM ỔN ĐỊNH
         score = 0
         total = len(questions)
 
         def option_letter(opt):
-            """Chuẩn hóa ký tự đầu của đáp án (A/B/C/D/Đúng/Sai...)"""
-            if not isinstance(opt, str) or not opt.strip():
+            if not isinstance(opt, str) or len(opt.strip()) == 0:
                 return ""
-            s = opt.strip().upper()
-            if s.startswith("A"): return "A"
-            if s.startswith("B"): return "B"
-            if s.startswith("C"): return "C"
-            if s.startswith("D"): return "D"
-            if s.startswith("Đ") or s.startswith("DUNG") or s.startswith("ĐÚNG"):
-                return "A"  # Đúng = A
-            if s.startswith("S") or s.startswith("SAI"):
-                return "B"  # Sai = B
-            return s[:1]
+            s = opt.strip()
+            if len(s) >= 1 and s[0].isalpha():
+                return s[0].upper()
+            if s.lower().startswith("đ") or s.lower().startswith("dung") or s.lower().startswith("d"):
+                return "A"
+            if s.lower().startswith("s") or s.lower().startswith("sai"):
+                return "B"
+            return s[0].upper()
 
-        for idx, q in enumerate(questions):  # idx 0-based
-            user_choice = st.session_state.user_answers.get(idx, "") or ""
-            correct_raw = q.get("answer", "") or ""
+        for idx, q in enumerate(questions):
+            user_choice = st.session_state.user_answers.get(idx, "")
+            correct_raw = (q.get("answer") or "").strip()
             user_letter = option_letter(user_choice)
-            correct_letter = option_letter(correct_raw)
-            if user_letter and correct_letter and user_letter == correct_letter:
+            correct_letter = correct_raw.strip().upper()
+            if user_letter and correct_letter and user_letter.startswith(correct_letter):
                 score += 1
 
         st.success(f"🎯 Kết quả: {score}/{total} câu đúng ({(score/total*100) if total>0 else 0:.1f}%)")
         st.balloons()
 
-        # 📋 HIỂN THỊ ĐÁP ÁN CHI TIẾT
         st.markdown("### 🔍 Đáp án chi tiết:")
         for idx, q in enumerate(questions):
             st.markdown(f"**Câu {idx+1}:** {q.get('question','')}")
@@ -375,8 +378,33 @@ if st.session_state.get("quiz_data") and "questions" in st.session_state["quiz_d
                 if st.session_state.user_answers.get(idx) == opt:
                     marker = "⬅️ (Bạn chọn)"
                 st.write(f"- {opt} {marker}")
-            st.info(f"✅ Đáp án đúng: {q.get('answer','')}")
+            st.info(f"✅ Đáp án: {q.get('answer','')}")
             st.markdown("---")
 
+        # ---------------- NÚT SAU KHI NỘP ----------------
+        col1, col2 = st.columns(2)
+
+        with col1:
+            if st.button("🔄 Làm lại bài này"):
+                st.session_state.submitted = False
+                st.session_state.user_answers = {}
+                st.session_state.start_time = time.time()
+                try:
+                    st.query_params.clear()
+                except Exception:
+                    st.experimental_set_query_params()
+                st.rerun()
+
+        with col2:
+            if st.button("🆕 Làm bài khác"):
+                for key in ["quiz_data", "user_answers", "submitted", "start_time", "end_time"]:
+                    if key in st.session_state:
+                        del st.session_state[key]
+                try:
+                    st.query_params.clear()
+                except Exception:
+                    st.experimental_set_query_params()
+                st.rerun()
+
 else:
-    st.info("Chưa có đề — nhấn '🚀 Tạo đề trắc nghiệm' để bắt đầu.")
+    st.info("📘 Chưa có đề — nhấn '🚀 Tạo đề trắc nghiệm' để bắt đầu.")
