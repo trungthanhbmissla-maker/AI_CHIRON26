@@ -215,11 +215,40 @@ if st.button("🚀 Tạo đề trắc nghiệm", type="primary"):
                 data = res.json()
                 if "questions" in data:
                     st.success(f"✅ Đã tạo {len(data['questions'])} câu hỏi!")
+
                     for i, q in enumerate(data["questions"], 1):
-                        st.markdown(f"**Câu {i}:** {q['question']}")
-                        for opt in q.get("options", []):
-                            st.write(f"- {opt}")
-                        st.write(f"**Đáp án:** {q['answer']}")
+                        st.markdown(f"### 🧩 Câu {i}: {q['question']}")
+
+                        # Nếu là câu trắc nghiệm có options
+                        if "options" in q and isinstance(q["options"], list):
+                            user_choice = st.radio(
+                                f"Chọn đáp án cho câu {i}",
+                                q["options"],
+                                key=f"q_{i}"
+                            )
+
+                            # Kiểm tra kết quả sau khi chọn
+                            if user_choice:
+                                if user_choice == q["answer"]:
+                                    st.success("✅ Chính xác!")
+                                else:
+                                    st.error("❌ Sai rồi!")
+
+                        # Nếu là câu Đúng/Sai (True/False)
+                        else:
+                            user_choice = st.radio(
+                                f"Chọn đáp án cho câu {i}",
+                                ["Đúng", "Sai"],
+                                key=f"q_{i}"
+                            )
+
+                            if user_choice:
+                                if user_choice.lower() == q["answer"].lower():
+                                    st.success("✅ Chính xác!")
+                                else:
+                                    st.error("❌ Sai rồi!")
+
+                        st.divider()
                 else:
                     st.warning("⚠️ Không có dữ liệu hợp lệ từ backend.")
             else:
