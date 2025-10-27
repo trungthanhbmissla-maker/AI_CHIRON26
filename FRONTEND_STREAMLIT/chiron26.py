@@ -95,9 +95,10 @@ with st.sidebar:
     st.markdown("## 🧭 Hướng dẫn sử dụng")
     st.markdown("""
     1. Chọn **môn học**, **lớp học** và **chủ đề**.  
-    2. Nhấn **🚀 Tạo đề trắc nghiệm** để hệ thống AI Chiron26 tạo tự động.  
+    2. Nhấn **🚀 Tạo đề trắc nghiệm** để hệ thống AI-Chiron26 tạo tự động.  
     3. Làm bài và **🛑 Nộp bài** khi hoàn thành.  
     4. Xem **kết quả & đáp án chi tiết** ngay sau khi nộp.
+    5. Có thể làm lại bài vừa làm hoặc làm bài mới.
     """)
     st.markdown("---")
     st.markdown("## 📚 Giới thiệu")
@@ -197,7 +198,7 @@ if st.button("🚀 Tạo đề trắc nghiệm", type="primary"):
 def keep_backend_alive():
     while True:
         try:
-            requests.get("https://your-backend.onrender.com/ping", timeout=10)
+            requests.get("https://ai-chiron26.onrender.com/ping", timeout=10)
         except:
             pass
         time.sleep(300)  # 5 phút
