@@ -406,6 +406,14 @@ Tạo {num_tf} câu hỏi dạng Đúng/Sai cho học sinh:
 def home():
     return jsonify({"message": "✅ AI_CHIRON26 backend is running"}), 200
 
+# ------------------------------
+# 🩺 HEALTH CHECK / KEEP ALIVE
+# ------------------------------
+@app.route("/ping", methods=["GET"])
+def ping():
+    """Route để kiểm tra backend còn sống hay không"""
+    return {"status": "ok"}, 200
+
 # ---------------------------
 # 🚀 Run server
 # ---------------------------
