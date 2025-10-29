@@ -193,63 +193,99 @@ def safe_parse_json(text):
 # 🔢 Chuẩn hóa ký hiệu
 # ---------------------------
 def normalize_math_symbols(text: str) -> str:
-    import re
+    """
+    Chuẩn hóa một chuỗi văn bản chứa các ký hiệu và công thức toán học,
+    hóa học và vật lý về định dạng Unicode đẹp mắt.
 
+    Args:
+        text: Chuỗi văn bản đầu vào.
+
+    Returns:
+        Chuỗi văn bản đã được chuẩn hóa.
+    """
     if not text or not isinstance(text, str):
         return text
 
-    # 1️⃣ Bỏ ký tự thoát LaTeX: \
-    text = text.replace("\\", "")
-
-    # 2️⃣ Chuẩn hóa sqrt hoặc √
-    text = re.sub(r"sqrt\s*\{([^}]+)\}", r"√\1", text)
-    text = re.sub(r"sqrt\s*\(([^)]+)\)", r"√\1", text)
-    text = re.sub(r"√\s*\{([^}]+)\}", r"√\1", text)
-    text = re.sub(r"√\s*\(([^)]+)\)", r"√\1", text)
-
-    # 3️⃣ Lũy thừa (x^2 → x², x^3 → x³)
-    text = re.sub(r"\^2\b", "²", text)
-    text = re.sub(r"\^3\b", "³", text)
-    text = re.sub(
-        r"\^\{(\d)\}",
-        lambda m: "²" if m.group(1) == "2" else ("³" if m.group(1) == "3" else f"^{m.group(1)}"),
-        text
-    )
-
-    # 4️⃣ Thay ký hiệu toán học phổ biến
-    replacements = {
-        "pi": "π",
-        "<=": "≤",
-        ">=": "≥",
-        "!=": "≠",
-        "->": "→",
-        "<-": "←",
-        "inf": "∞",
-        "theta": "θ",
-        "alpha": "α",
-        "beta": "β",
-        "gamma": "γ",
-        "delta": "δ",
-        "Omega": "Ω",
-        "omega": "ω",
+    # --- 1. Từ điển chuyển đổi (Giữ nguyên như cũ) ---
+    latex_unicode_map = {
+        r'\\alpha': 'α', r'\\beta': 'β', r'\\gamma': 'γ', r'\\delta': 'δ', r'\\epsilon': 'ε',
+        r'\\zeta': 'ζ', r'\\eta': 'η', r'\\theta': 'θ', r'\\iota': 'ι', r'\\kappa': 'κ',
+        r'\\lambda': 'λ', r'\\mu': 'μ', r'\\nu': 'ν', r'\\xi': 'ξ', r'\\omicron': 'ο',
+        r'\\pi': 'π', r'\\rho': 'ρ', r'\\sigma': 'σ', r'\\tau': 'τ', r'\\upsilon': 'υ',
+        r'\\phi': 'φ', r'\\chi': 'χ', r'\\psi': 'ψ', r'\\omega': 'ω',
+        r'\\Gamma': 'Γ', r'\\Delta': 'Δ', r'\\Theta': 'Θ', r'\\Lambda': 'Λ', r'\\Xi': 'Ξ',
+        r'\\Pi': 'Π', r'\\Sigma': 'Σ', r'\\Upsilon': 'Υ', r'\\Phi': 'Φ', r'\\Psi': 'Ψ',
+        r'\\Omega': 'Ω',
+        r'\\pm': '±', r'\\times': '×', r'\\div': '÷', r'\\cdot': '⋅', r'\\neq': '≠',
+        r'\\leq': '≤', r'\\geq': '≥', r'\\approx': '≈', r'\\equiv': '≡', r'\\in': '∈',
+        r'\\notin': '∉', r'\\subset': '⊂', r'\\supset': '⊃', r'\\subseteq': '⊆',
+        r'\\supseteq': '⊇', r'\\sum': '∑', r'\\int': '∫', r'\\partial': '∂',
+        r'\\nabla': '∇', r'\\infty': '∞', r'\\forall': '∀', r'\\exists': '∃',
+        r'\\angle': '∠', r'\\perp': '⊥',
+        r'\\rightarrow': '→', r'\\leftarrow': '←', r'\\leftrightarrow': '↔',
+        r'\\Rightarrow': '⇒', r'\\Leftarrow': '⇐', r'\\Leftrightarrow': '⇔',
+        r'\\uparrow': '↑', r'\\downarrow': '↓',
+        r'\\ldots': '…', r'\\cdots': '⋯', r'\\vdots': '⋮', r'\\ddots': '⋱',
+        r'\\circ': '°',
     }
-    for k, v in replacements.items():
-        text = re.sub(rf"\b{k}\b", v, text, flags=re.IGNORECASE)
+    keyword_map = {
+        r'sqrt': '√', 'inf': '∞',
+    }
+    operator_map = {
+        '>=': '≥', '<=': '≤', '!=': '≠', '->': '→', '<-': '←', '<=>': '⇔'
+    }
+    superscript_map = str.maketrans("0123456789+-=()n", "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ⁿ")
+    subscript_map = str.maketrans("0123456789+-=()aehijklmnoprstuvx", "₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎ₐₑₕᵢⱼₖₗₘₙₒₚᵣₛₜᵤᵥₓ")
 
-    # 5️⃣ Hóa học: CH3COOH → CH₃COOH
-    subscript_map = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+    # --- 2. Thực hiện chuyển đổi ---
+    # Thay thế các toán tử đặc biệt
+    for op, uni in operator_map.items():
+        text = text.replace(op, uni)
+    # Thay thế các lệnh LaTeX
+    for latex, uni in latex_unicode_map.items():
+        text = re.sub(latex + r'\b', uni, text)
+    # Thay thế các từ khóa
+    for keyword, uni in keyword_map.items():
+        text = re.sub(r'\b' + keyword + r'\b', uni, text, flags=re.IGNORECASE)
+    # Thay thế ký hiệu độ dạng `^o`
+    text = re.sub(r'\^o\b', '°', text)
 
+    # --- 3. Xử lý các cấu trúc phức tạp hơn bằng Regex ---
+
+    # CẢI TIẾN: Chuẩn hóa căn bậc hai và thêm ngoặc để rõ ràng
+    # Thay vì r"√\1", ta dùng r"√(\1)"
+    text = re.sub(r"√\s*[{<(]([^})>]+)[})>]", r"√(\1)", text)
+
+    # Chuẩn hóa phân số
+    text = re.sub(r"\\frac{([^}]+)}{([^}]+)}", r"(\1/\2)", text)
+    # Chuẩn hóa vector
+    text = re.sub(r"\\vec{([^}]+)}", r"\1⃗", text)
+    # Chuẩn hóa góc dạng "hat"
+    def add_hat(m):
+        return m.group(1) + '\u0302'
+    text = re.sub(r"\\hat{([A-Za-z])}", add_hat, text)
+    # Chuẩn hóa chỉ số trên (superscript)
+    def to_superscript(m):
+        return m.group(1).translate(superscript_map)
+    text = re.sub(r"\^\{([^}]+)\}", to_superscript, text)
+    text = re.sub(r"\^([0-9n()+\-]+)", to_superscript, text)
+    # Chuẩn hóa chỉ số dưới (subscript)
+    def to_subscript(m):
+        return m.group(1).translate(subscript_map)
+    text = re.sub(r"_{([^}]+)}", to_subscript, text)
+    text = re.sub(r"_([0-9aehijklmnoprstuvx]+)", to_subscript, text)
+    # Chuẩn hóa công thức hóa học
     def chemical_subscripts(match):
         formula = match.group(0)
-        # chỉ thay số sau chữ cái
-        return re.sub(r"(?<=[A-Za-z])(\d+)", lambda m: m.group(1).translate(subscript_map), formula)
+        return re.sub(r"(?<=[A-Za-z])([0-9]+)", lambda m: m.group(1).translate(subscript_map), formula)
+    text = re.sub(r"\b([A-Z][a-z]?\d*)+", chemical_subscripts, text)
 
-    text = re.sub(r"\b[A-Z][A-Za-z0-9()]*\b", chemical_subscripts, text)
+    # --- 4. Dọn dẹp cuối cùng ---
+    text = text.replace("\\", "")
+    text = re.sub(r"\s+", " ", text).strip()
 
-    # 6️⃣ Xóa khoảng trắng thừa
-    text = re.sub(r"\s+", " ", text)
+    return text
 
-    return text.strip()
 
 # ---------------------------
 # 🧩 API sinh đề trắc nghiệm (bản có TTL + force_regen)
