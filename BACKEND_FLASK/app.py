@@ -355,7 +355,7 @@ Tạo {num_mcq} câu hỏi trắc nghiệm nhiều lựa chọn (MCQ) cho học 
 - Môn học: {subject}
 - Lớp: {grade}
 - Chủ đề: {topic}
-
+- Trong đó có 40% câu ở mức độ nhận biết, 30% câu ở mức độ hiểu, 30% câu ở mức độ vận dụng.
 Định dạng:
 {{
   "questions": [
@@ -378,7 +378,7 @@ Tạo {num_tf} câu hỏi dạng Đúng/Sai cho học sinh:
 - Môn học: {subject}
 - Lớp: {grade}
 - Chủ đề: {topic}
-
+- Trong đó có 50% câu ở mức độ nhận biết, 25% câu ở mức độ hiểu, 25% câu ở mức độ vận dụng.
 Định dạng:
 {{
   "questions": [
