@@ -134,5 +134,60 @@
     "10": ["Địa lý tự nhiên đại cương", "Địa lý kinh tế - xã hội thế giới"],
     "11": ["Địa lý các châu lục", "Địa lý Việt Nam chi tiết"],
     "12": ["Địa lý các vùng kinh tế Việt Nam", "Địa lý phát triển bền vững"]
+  },
+  "Tiếng Anh": {
+    "6": [
+      "My New School (Trường học mới của tôi)",
+      "My Home (Nhà của tôi)",
+      "My Friends (Bạn bè của tôi)",
+      "My Neighbourhood (Khu phố của tôi)",
+      "Natural Wonders of Vietnam (Các kỳ quan thiên nhiên Việt Nam)",
+      "Our Tet Holiday (Ngày Tết của chúng tôi)"
+    ],
+    "7": [
+      "Hobbies (Sở thích)",
+      "Health (Sức khỏe)",
+      "Community Service (Dịch vụ cộng đồng)",
+      "Music and Arts (Âm nhạc và Nghệ thuật)",
+      "Vietnamese Food and Drink (Đồ ăn và thức uống Việt Nam)",
+      "The First University in Vietnam (Trường Đại học đầu tiên ở Việt Nam)"
+    ],
+    "8": [
+      "Leisure Activities (Hoạt động rảnh rỗi)",
+      "Life in the Countryside (Cuộc sống ở nông thôn)",
+      "Peoples of Vietnam (Các dân tộc Việt Nam)",
+      "Our Customs and Traditions (Phong tục và truyền thống)",
+      "Festivals in Vietnam (Các lễ hội ở Việt Nam)",
+      "Folk Tales (Truyện cổ tích)"
+    ],
+    "9": [
+      "Local Environment (Môi trường địa phương)",
+      "City Life (Cuộc sống thành thị)",
+      "Teen Stress and Pressure (Căng thẳng và áp lực tuổi teen)",
+      "Life Long Learning (Học tập suốt đời)",
+      "Wonders of Vietnam (Các kỳ quan của Việt Nam)",
+      "Vietnam: Then and Now (Việt Nam: Xưa và Nay)"
+    ],
+    "10": [
+      "Family Life (Đời sống gia đình)",
+      "Humans and the Environment (Con người và môi trường)",
+      "Music (Âm nhạc)",
+      "For a Better Community (Vì một cộng đồng tốt đẹp hơn)",
+      "Inventions (Các phát minh)"
+    ],
+    "11": [
+      "A Long and Healthy Life (Một cuộc sống dài lâu và khỏe mạnh)",
+      "The Generation Gap (Khoảng cách thế hệ)",
+      "Cities of the Future (Các thành phố của tương lai)",
+      "ASEAN and Vietnam (ASEAN và Việt Nam)",
+      "Global Warming (Nóng lên toàn cầu)"
+    ],
+    "12": [
+      "Life Stories (Những câu chuyện cuộc đời)",
+      "Urbanisation (Đô thị hóa)",
+      "The Green Movement (Phong trào sống xanh)",
+      "The Mass Media (Truyền thông đại chúng)",
+      "Higher Education (Giáo dục đại học)"
+    ]
   }
 }
